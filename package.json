@@ -1,23 +1,35 @@
 {
 	"name": "xml-grid-view",
 	"displayName": "XML Grid View",
-	"description": "alternative visual representation for xml files",
+	"description": "Alternative visual representation for xml files",
 	"version": "0.0.1",
 	"engines": {
-		"vscode": "^1.51.0"
+		"vscode": "^1.49.0"
 	},
 	"categories": [
 		"Other"
 	],
 	"activationEvents": [
-		"onCommand:xml-grid-view.helloWorld"
+		"onCustomEditor:xml-grid-view.gridView"
 	],
 	"main": "./out/extension.js",
 	"contributes": {
 		"commands": [
 			{
-				"command": "xml-grid-view.helloWorld",
-				"title": "Hello World"
+				"command": "xml-grid-view.openGridView",
+				"title": "Open in Grid View"
+			}
+		],
+		"customEditors": [
+			{
+				"viewType": "xml-grid-view.gridView",
+				"displayName": "XML Grid View",
+				"selector": [
+					{
+						"filenamePattern": "*.arxml"
+					}
+				],
+				"priority": "option"
 			}
 		]
 	},
