@@ -9,7 +9,6 @@ export class GridViewEditorProvider implements vscode.CustomTextEditorProvider {
         const providerRegistration = vscode.window.registerCustomEditorProvider(GridViewEditorProvider.viewType, provider);
         return providerRegistration;
     }
-
     private static readonly viewType = 'xml-grid-view.gridView';
 
     constructor(
@@ -25,13 +24,25 @@ export class GridViewEditorProvider implements vscode.CustomTextEditorProvider {
             enableScripts: true
         };
         webviewPanel.webview.html = this.getHtmlForWebview(webviewPanel.webview);
-        webviewPanel.webview.onDidReceiveMessage(message => (handleMessage(webviewPanel, message)));
+        webviewPanel.webview.onDidReceiveMessage(message => (handleMessage(document, webviewPanel, message)));
         webviewPanel.webview.postMessage(createMessage("init", null));
     }
 
     private getHtmlForWebview(webview: vscode.Webview): string {
-        const scriptUri = webview.asWebviewUri(vscode.Uri.file(
+        const scriptJQueryUri = webview.asWebviewUri(vscode.Uri.file(
+            path.join(this.context.extensionPath, 'src', 'js', 'lib', 'jquery-3.5.1.min.js')
+        ));
+        const scriptJson2htmlUri = webview.asWebviewUri(vscode.Uri.file(
+            path.join(this.context.extensionPath, 'src', 'js', 'lib', 'json2html.js')
+        ));
+        const scriptVisualizerUri = webview.asWebviewUri(vscode.Uri.file(
+            path.join(this.context.extensionPath, 'src', 'js', 'lib', 'visualizer.js')
+        ));
+        const scriptGetXMLContentUri = webview.asWebviewUri(vscode.Uri.file(
             path.join(this.context.extensionPath, 'src', 'js', 'getXMLContent.js')
+        ));
+        const styleVisualizerUri = webview.asWebviewUri(vscode.Uri.file(
+            path.join(this.context.extensionPath, 'src', 'css', 'visualizer.css')
         ));
 
         const nonce = getNonce();
@@ -42,20 +53,34 @@ export class GridViewEditorProvider implements vscode.CustomTextEditorProvider {
             <head>
                 <meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src ${webview.cspSource}; style-src ${webview.cspSource}; script-src 'nonce-${nonce}';">
                 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
                 <title>XML Grid View</title>
+
+                <link href="${styleVisualizerUri}" rel="stylesheet">
+
             </head>
+
             <body>
-                <div id="mainBody">
+
+                <div id="output">
                     <input id="loadContent" type="button" value="Load Content"/>
                 </div>
-                <script nonce="${nonce}" src="${scriptUri}"></script>
+
+                <script nonce="${nonce}" src="${scriptJQueryUri}"></script>
+                <script nonce="${nonce}" src="${scriptJson2htmlUri}"></script>
+                <script nonce="${nonce}" src="${scriptVisualizerUri}"></script>
+                <script nonce="${nonce}" src="${scriptGetXMLContentUri}"></script>
+
             </body>
             </html>`;
     }
 }
 
-function handleMessage(panel: vscode.WebviewPanel, message: Message) : void {
+function handleMessage(document: vscode.TextDocument, panel: vscode.WebviewPanel, message: Message) : void {
     switch (message.method) {
-        case "init": panel.webview.postMessage(createMessage("content", "Hello there!"));
+        case "init":
+            var parser = require('fast-xml-parser');
+            var jsonObj = parser.parse(document.getText());
+            panel.webview.postMessage(createMessage("content", jsonObj));
     }
 }

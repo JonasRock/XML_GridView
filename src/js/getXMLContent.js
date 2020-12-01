@@ -5,7 +5,8 @@ window.addEventListener('message', event => {
     const message = event.data;
     switch (message.method) {
         case 'content':
-            document.getElementById("mainBody").innerText = message.params;
+            var _visualizer = new visualizer($("#output"));
+            _visualizer.visualize(message.params);
     }
 });
 
