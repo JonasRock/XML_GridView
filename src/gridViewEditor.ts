@@ -1,18 +1,25 @@
 import * as path from 'path';
 import * as vscode from 'vscode';
 import { getNonce, createMessage, Message } from './util';
+import * as net from 'net';
+import { CommunicationHandler } from './communicationHandler';
 
 export class GridViewEditorProvider implements vscode.CustomTextEditorProvider {
 
-    public static register(context: vscode.ExtensionContext): vscode.Disposable {
-        const provider = new GridViewEditorProvider(context);
+    public static register(context: vscode.ExtensionContext, socket: net.Socket): vscode.Disposable {
+        const provider = new GridViewEditorProvider(context, socket);
+        
         const providerRegistration = vscode.window.registerCustomEditorProvider(GridViewEditorProvider.viewType, provider);
         return providerRegistration;
     }
-    private static readonly viewType = 'xml-grid-view.gridView';
 
+    private static readonly viewType = 'xml-grid-view.gridView';
+    private id: number = 0;
+    private commHandler: CommunicationHandler | undefined = undefined;
+    
     constructor(
-        private readonly context: vscode.ExtensionContext
+        private readonly context: vscode.ExtensionContext,
+        private socket: net.Socket
     ) {}
 
     public async resolveCustomTextEditor(
@@ -20,12 +27,11 @@ export class GridViewEditorProvider implements vscode.CustomTextEditorProvider {
         webviewPanel: vscode.WebviewPanel,
         _token: vscode.CancellationToken
     ) : Promise<void> {
+        this.commHandler = new CommunicationHandler(this.socket, webviewPanel);
         webviewPanel.webview.options = {
             enableScripts: true
         };
         webviewPanel.webview.html = this.getHtmlForWebview(webviewPanel.webview);
-        webviewPanel.webview.onDidReceiveMessage(message => (handleMessage(document, webviewPanel, message)));
-        webviewPanel.webview.postMessage(createMessage("init", null));
     }
 
     private getHtmlForWebview(webview: vscode.Webview): string {
@@ -73,14 +79,5 @@ export class GridViewEditorProvider implements vscode.CustomTextEditorProvider {
 
             </body>
             </html>`;
-    }
-}
-
-function handleMessage(document: vscode.TextDocument, panel: vscode.WebviewPanel, message: Message) : void {
-    switch (message.method) {
-        case "init":
-            var parser = require('fast-xml-parser');
-            var jsonObj = parser.parse(document.getText());
-            panel.webview.postMessage(createMessage("content", jsonObj));
     }
 }
