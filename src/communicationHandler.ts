@@ -9,7 +9,8 @@ export class CommunicationHandler {
 
     constructor(
         private socket: net.Socket,
-        private webviewPanel: vscode.WebviewPanel
+        private webviewPanel: vscode.WebviewPanel,
+        private document: vscode.TextDocument
     ) {
         this.serverAndClient = new JSONRPCServerAndClient(
             new JSONRPCServer,
@@ -39,13 +40,17 @@ export class CommunicationHandler {
 
         //Requests from the Webview
         webviewPanel.webview.onDidReceiveMessage((message) => {
+            switch (message.method) {
+                //Depending on the method, here we can append additional info to the request that the webview has no access to
+                case "init": message.params = {"uri": document.uri.toString()};
+            }
             this.serverAndClient.request(message.method, message.params)
                 .then((result => {
                     if (message.id) {
                         webviewPanel.webview.postMessage({"result": result, "id": message.id });
                     }
                     else {
-                        console.log("Provide ID");
+                        console.error("Webview request missing ID parameter");
                     }
                 }));
         });

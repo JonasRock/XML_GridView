@@ -27,7 +27,7 @@ export class GridViewEditorProvider implements vscode.CustomTextEditorProvider {
         webviewPanel: vscode.WebviewPanel,
         _token: vscode.CancellationToken
     ) : Promise<void> {
-        this.commHandler = new CommunicationHandler(this.socket, webviewPanel);
+        this.commHandler = new CommunicationHandler(this.socket, webviewPanel, document);
         webviewPanel.webview.options = {
             enableScripts: true
         };
