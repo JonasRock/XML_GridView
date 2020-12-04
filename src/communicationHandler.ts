@@ -54,5 +54,8 @@ export class CommunicationHandler {
                     }
                 }));
         });
+
+        //tell the webview that the server is ready
+        webviewPanel.webview.postMessage({"id":0, "result": null});
     }
 }

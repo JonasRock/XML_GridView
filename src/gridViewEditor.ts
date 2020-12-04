@@ -67,9 +67,9 @@ export class GridViewEditorProvider implements vscode.CustomTextEditorProvider {
             </head>
 
             <body>
-
+                <input id="textInput" type="text"/>
+                <input id="loadContent" type="button" value="Load Content"/>
                 <div id="output">
-                    <input id="loadContent" type="button" value="Load Content"/>
                 </div>
 
                 <script nonce="${nonce}" src="${scriptJQueryUri}"></script>
