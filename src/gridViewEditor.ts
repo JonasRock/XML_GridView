@@ -47,8 +47,8 @@ export class GridViewEditorProvider implements vscode.CustomTextEditorProvider {
         const scriptGetXMLContentUri = webview.asWebviewUri(vscode.Uri.file(
             path.join(this.context.extensionPath, 'src', 'js', 'getXMLContent.js')
         ));
-        const styleVisualizerUri = webview.asWebviewUri(vscode.Uri.file(
-            path.join(this.context.extensionPath, 'src', 'css', 'visualizer.css')
+        const styleGridViewUri = webview.asWebviewUri(vscode.Uri.file(
+            path.join(this.context.extensionPath, 'src', 'css', 'gridView.css')
         ));
 
         const nonce = getNonce();
@@ -62,14 +62,13 @@ export class GridViewEditorProvider implements vscode.CustomTextEditorProvider {
 
                 <title>XML Grid View</title>
 
-                <link href="${styleVisualizerUri}" rel="stylesheet">
+                <link href="${styleGridViewUri}" rel="stylesheet">
 
             </head>
 
             <body>
-                <input id="textInput" type="text"/>
-                <input id="loadContent" type="button" value="Load Content"/>
-                <div id="output">
+                <div id="/">
+                    click to expand
                 </div>
 
                 <script nonce="${nonce}" src="${scriptJQueryUri}"></script>
