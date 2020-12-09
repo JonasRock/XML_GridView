@@ -44,9 +44,38 @@ function sendRequest(method, params, callback, callbackParams = undefined)
     vscode.postMessage(request);
 };
 
+function convertToNameFieldID(valueFieldID)
+{
+    return "xmlGridViewNameField-" + valueFieldID;
+}
+
+function convertToValueFieldID(nameFieldID)
+{
+    //FIXME:
+    //Will replace in string too, not just the prefix
+    return nameFieldID.replace("xmlGridViewNameField-", "");
+}
+
 function loadContent(e)
 {
-    sendRequest("getChildren", {"xPath": e.target.id}, showElements, e.target);
+    var name = e.target.id;
+    if (name.startsWith("xmlGridViewNameField-")) {
+        name = convertToValueFieldID(name);
+
+    }
+    sendRequest("getChildren", {"xPath": name}, showElements, document.getElementById(name));
+}
+
+function unloadContent(e)
+{
+    e.target.removeEventListener("click", unloadContent);
+    e.target.addEventListener("click", loadContent);
+    var name = e.target.id;
+    name = convertToValueFieldID(name);
+    valueField = document.getElementById(name);
+    valueField.innerHTML = "";
+    valueField.appendChild(document.createTextNode("click to expand"));
+    valueField.addEventListener("click", loadContent);
 }
 
 function serverReady(result)
@@ -57,6 +86,13 @@ function serverReady(result)
 function showElements(result, domElement)
 {
     domElement.removeEventListener("click", loadContent);
+    nameFieldElement = document.getElementById("xmlGridViewNameField-" + domElement.id);
+    if (nameFieldElement) {
+        nameFieldElement.removeEventListener("click", loadContent);
+        nameFieldElement.addEventListener("click", unloadContent);
+    }
+        
+
     target = domElement;
     target.innerHTML = "";
 
@@ -79,18 +115,21 @@ function showElements(result, domElement)
         for(let element of result.elements)
         {
             var tr = document.createElement("tr");
-            var tdName = document.createElement("td");
-            tdName.appendChild(document.createTextNode(element.name));
-            tr.appendChild(tdName);
-            var tdValue = document.createElement("td");
             //For complex elements, create the "button" to get more info
+            var tdName = document.createElement("td");
+            var tdValue = document.createElement("td");
             if (element.hasChildren) {
+                tdName.appendChild(document.createTextNode(element.name));
+                tdName.id = "xmlGridViewNameField-" + element.fullPath;
+                tdName.addEventListener("click", loadContent);
+                tr.appendChild(tdName);
                 tdValue.appendChild(document.createTextNode("click to expand"));
-                //fullPath gets sent by the xml server when children exist
                 tdValue.id = element.fullPath;
                 tdValue.addEventListener("click", loadContent);
                 tr.appendChild(tdValue);
             } else {
+                tdName.appendChild(document.createTextNode(element.name));
+                tr.appendChild(tdName);
                 tdValue.appendChild(document.createTextNode(element.value));
                 tr.appendChild(tdValue);
             }
