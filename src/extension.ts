@@ -35,7 +35,7 @@ function createXMLServer(context: vscode.ExtensionContext, serverPath: string) {
 		server.listen(0, '127.0.0.1', () => {
 			var portNr: Number = ((server.address() as any).port);
 			console.log("Listening on Port " + portNr);
-			//exec = child_process.spawn(serverPath, [portNr.toString()]);
+			exec = child_process.spawn(serverPath, [portNr.toString()]);
 		});
 	});
 }
