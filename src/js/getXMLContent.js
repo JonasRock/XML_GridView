@@ -119,7 +119,11 @@ function showElements(result, domElement)
             var tdName = document.createElement("td");
             var tdValue = document.createElement("td");
             if (element.hasChildren) {
-                tdName.appendChild(document.createTextNode(element.name));
+                if(element.value) {
+                    tdName.appendChild(document.createTextNode(element.name + " - " + element.value));
+                } else {
+                    tdName.appendChild(document.createTextNode(element.name));
+                }
                 tdName.id = "xmlGridViewNameField-" + element.fullPath;
                 tdName.addEventListener("click", loadContent);
                 tr.appendChild(tdName);

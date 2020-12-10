@@ -1,11 +1,13 @@
 import { JSONRPCClient, JSONRPCServer, JSONRPCServerAndClient } from "json-rpc-2.0";
 import * as net from 'net';
 import * as vscode from "vscode";
+import { Config } from "./config";
 import { MessageBuffer } from "./messageBuffer";
 
 export class CommunicationHandler {
 
     private serverAndClient: JSONRPCServerAndClient;
+    private config: Config;
 
     constructor(
         private socket: net.Socket,
@@ -27,6 +29,9 @@ export class CommunicationHandler {
             )
         );
         socket.on("close", () => { this.serverAndClient.rejectAllPendingRequests("Connection is closed"); });
+        this.config = new Config;
+        this.config.getNewConfiguration();
+        vscode.workspace.onDidChangeConfiguration(() => this.config.getNewConfiguration());
 
         //Message from the XML server
         let received = new MessageBuffer("\r\n\r\n");
@@ -43,6 +48,7 @@ export class CommunicationHandler {
             switch (message.method) {
                 //Depending on the method, here we can append additional info to the request that the webview has no access to
                 case "init": message.params = {"uri": document.uri.toString()};
+                case "getChildren": message.params["options"] = {"arxml": this.config.arxml};
             }
             this.serverAndClient.request(message.method, message.params)
                 .then((result => {

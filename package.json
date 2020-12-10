@@ -14,6 +14,17 @@
 	],
 	"main": "./out/extension.js",
 	"contributes": {
+		"configuration":[
+			{
+				"properties": {
+					"xml-grid-view.autosarMode": {
+						"type": "boolean",
+						"default": false,
+						"description": "Enables features helpful for viewing AUTOSAR .arxml files, such as including the elements shortnames in arrays, instead of just a number"
+					}
+				}
+			}
+		],
 		"commands": [
 			{
 				"command": "xml-grid-view.openGridView",
