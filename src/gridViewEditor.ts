@@ -71,9 +71,6 @@ export class GridViewEditorProvider implements vscode.CustomTextEditorProvider {
                     click to expand
                 </div>
 
-                <script nonce="${nonce}" src="${scriptJQueryUri}"></script>
-                <script nonce="${nonce}" src="${scriptJson2htmlUri}"></script>
-                <script nonce="${nonce}" src="${scriptVisualizerUri}"></script>
                 <script nonce="${nonce}" src="${scriptGetXMLContentUri}"></script>
 
             </body>
