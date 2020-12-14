@@ -45,12 +45,15 @@ export class CommunicationHandler {
 
         //Requests from the Webview
         webviewPanel.webview.onDidReceiveMessage((message) => {
+            let extern: boolean = true;
             switch (message.method) {
                 //Depending on the method, here we can append additional info to the request that the webview has no access to
-                case "init": message.params = {"uri": document.uri.toString()};
-                case "getChildren": message.params["options"] = {"arxml": this.config.arxml};
+                case "init": message.params = {"uri": document.uri.toString()}; break;
+                case "getChildren": message.params["options"] = {"arxml": this.config.arxml}; break;
+                case "showNotification": extern = false; vscode.window.showWarningMessage(message.params); break;
             }
-            this.serverAndClient.request(message.method, message.params)
+            if(extern) {
+                this.serverAndClient.request(message.method, message.params)
                 .then((result => {
                     if (message.id) {
                         webviewPanel.webview.postMessage({"result": result, "id": message.id });
@@ -59,6 +62,7 @@ export class CommunicationHandler {
                         console.error("Webview request missing ID parameter");
                     }
                 }));
+            }
         });
 
         //tell the webview that the server is ready

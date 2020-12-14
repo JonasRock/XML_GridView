@@ -80,7 +80,18 @@ function unloadContent(e)
 
 function serverReady(result)
 {
-    sendRequest("init", null, ()=>{} );
+    sendRequest("init", null, result => {
+        if(result.status !== "ok")
+        {
+            vscode.postMessage(
+                createMessage("showNotification",                
+                    "Parsing error at [Line: "
+                    + (parseInt(result.position.line) + 1) + ", Column: " + (parseInt(result.position.character) + 1) +"]:\n" + result.description
+                    //1 added to position values because returned values are zero based but start with one in the editor
+                )
+            );
+        }
+    });
 }
 
 function showElements(result, domElement)
