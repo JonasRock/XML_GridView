@@ -97,7 +97,7 @@ function showElements(result, domElement)
     target.innerHTML = "";
 
     var tbl = document.createElement("table");
-    tbl.id = "xml-grid";
+    tbl.className = "xmlGrid";
 
     if (result.attributes) {
         for (let attribute of result.attributes) {
