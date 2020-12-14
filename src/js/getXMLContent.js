@@ -84,9 +84,10 @@ function serverReady(result)
         if(result.status !== "ok")
         {
             vscode.postMessage(
-                createMessage("showNotification",                
-                    "Parsing error at [Line: "
-                    + (parseInt(result.position.line) + 1) + ", Column: " + (parseInt(result.position.character) + 1) +"]:\n" + result.description
+                createMessage("showNotification",             
+                    {"text": "Parsing error at [Line: "
+                    + (parseInt(result.position.line) + 1) + ", Column: " + (parseInt(result.position.character) + 1) +"]:\n" + result.description,
+                    "position": result.position}
                     //1 added to position values because returned values are zero based but start with one in the editor
                 )
             );

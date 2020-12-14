@@ -50,7 +50,16 @@ export class CommunicationHandler {
                 //Depending on the method, here we can append additional info to the request that the webview has no access to
                 case "init": message.params = {"uri": document.uri.toString()}; break;
                 case "getChildren": message.params["options"] = {"arxml": this.config.arxml}; break;
-                case "showNotification": extern = false; vscode.window.showWarningMessage(message.params); break;
+                case "showNotification": extern = false; vscode.window.showWarningMessage(message.params.text, "Go to Error", "Ignore")
+                    .then(value => {
+                        if (value !== "Ignore") {
+                            editorGoTo(
+                                new vscode.Location(document.uri,
+                                    new vscode.Position(message.params.position.line, message.params.position.character))
+                            );
+                        }
+                    });
+                break;
             }
             if(extern) {
                 this.serverAndClient.request(message.method, message.params)
@@ -68,4 +77,26 @@ export class CommunicationHandler {
         //tell the webview that the server is ready
         webviewPanel.webview.postMessage({"id":0, "result": null});
     }
+}
+
+function editorGoTo(loc: vscode.Location | vscode.Range, callback?: Function) {
+	if ('uri' in loc) {
+		vscode.window.showTextDocument(loc.uri)
+		.then(function (document) {
+			if (vscode.window.activeTextEditor) {
+				let sel = new vscode.Selection(loc.range.start.line, loc.range.start.character, loc.range.end.line, loc.range.end.character);
+					vscode.window.activeTextEditor.selection = sel;
+					vscode.window.activeTextEditor.revealRange(new vscode.Selection(sel.start, sel.end), vscode.TextEditorRevealType.InCenterIfOutsideViewport);
+					if (callback) {
+						callback();
+					}
+				}
+			});
+		} else {
+			if (vscode.window.activeTextEditor) {
+			let sel = new vscode.Selection(loc.start.line, loc.start.character, loc.end.line, loc.end.character);
+			vscode.window.activeTextEditor.selection = sel;
+			vscode.window.activeTextEditor.revealRange(new vscode.Selection(sel.start, sel.end), vscode.TextEditorRevealType.InCenterIfOutsideViewport);
+		}
+	}
 }
