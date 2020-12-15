@@ -138,6 +138,7 @@ function showElements(result, domElement)
                     tdName.appendChild(document.createTextNode(element.name));
                 }
                 tdName.id = "xmlGridViewNameField-" + element.fullPath;
+                tdName.title = "XPath: " + element.fullPath;
                 tdName.addEventListener("click", loadContent);
                 tr.appendChild(tdName);
                 tdValue.appendChild(document.createTextNode("click to expand"));
