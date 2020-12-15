@@ -12,7 +12,6 @@ export class CommunicationHandler {
     constructor(
         private socket: net.Socket,
         private webviewPanel: vscode.WebviewPanel,
-        private document: vscode.TextDocument
     ) {
         this.serverAndClient = new JSONRPCServerAndClient(
             new JSONRPCServer,
@@ -48,13 +47,12 @@ export class CommunicationHandler {
             let extern: boolean = true;
             switch (message.method) {
                 //Depending on the method, here we can append additional info to the request that the webview has no access to
-                case "init": message.params = {"uri": document.uri.toString()}; break;
-                case "getChildren": message.params["options"] = {"arxml": this.config.arxml}; break;
+            case "getChildren": message.params["options"] = {"arxml": this.config.arxml}; break;
                 case "showNotification": extern = false; vscode.window.showWarningMessage(message.params.text, "Go to Error", "Ignore")
                     .then(value => {
                         if (value !== "Ignore") {
                             editorGoTo(
-                                new vscode.Location(document.uri,
+                                new vscode.Location(vscode.Uri.parse(message.params.uri),
                                     new vscode.Position(message.params.position.line, message.params.position.character))
                             );
                         }

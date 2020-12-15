@@ -63,7 +63,7 @@ function loadContent(e)
         name = convertToValueFieldID(name);
 
     }
-    sendRequest("getChildren", {"xPath": name}, showElements, document.getElementById(name));
+    sendRequest("getChildren", {"xPath": name, "uri": docString}, showElements, document.getElementById(name));
 }
 
 function unloadContent(e)
@@ -80,14 +80,15 @@ function unloadContent(e)
 
 function serverReady(result)
 {
-    sendRequest("init", null, result => {
+    sendRequest("init", {uri: docString}, result => {
         if(result.status !== "ok")
         {
             vscode.postMessage(
                 createMessage("showNotification",             
                     {"text": "Parsing error at [Line: "
                     + (parseInt(result.position.line) + 1) + ", Column: " + (parseInt(result.position.character) + 1) +"]:\n" + result.description,
-                    "position": result.position}
+                    "position": result.position,
+                    "uri": docString}
                     //1 added to position values because returned values are zero based but start with one in the editor
                 )
             );
@@ -171,6 +172,7 @@ function main()
     });
 }
 
+docString = document.getElementById("/").getAttribute("docString");
 vscode = acquireVsCodeApi();
 var cbMapper = new CallbackMapper();
 main();

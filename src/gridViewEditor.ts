@@ -27,29 +27,21 @@ export class GridViewEditorProvider implements vscode.CustomTextEditorProvider {
         webviewPanel: vscode.WebviewPanel,
         _token: vscode.CancellationToken
     ) : Promise<void> {
-        this.commHandler = new CommunicationHandler(this.socket, webviewPanel, document);
+        this.commHandler = new CommunicationHandler(this.socket, webviewPanel);
         webviewPanel.webview.options = {
             enableScripts: true
         };
-        webviewPanel.webview.html = this.getHtmlForWebview(webviewPanel.webview);
+        webviewPanel.webview.html = this.getHtmlForWebview(webviewPanel.webview, document);
     }
 
-    private getHtmlForWebview(webview: vscode.Webview): string {
-        const scriptJQueryUri = webview.asWebviewUri(vscode.Uri.file(
-            path.join(this.context.extensionPath, 'src', 'js', 'lib', 'jquery-3.5.1.min.js')
-        ));
-        const scriptJson2htmlUri = webview.asWebviewUri(vscode.Uri.file(
-            path.join(this.context.extensionPath, 'src', 'js', 'lib', 'json2html.js')
-        ));
-        const scriptVisualizerUri = webview.asWebviewUri(vscode.Uri.file(
-            path.join(this.context.extensionPath, 'src', 'js', 'lib', 'visualizer.js')
-        ));
+    private getHtmlForWebview(webview: vscode.Webview, document: vscode.TextDocument): string {
         const scriptGetXMLContentUri = webview.asWebviewUri(vscode.Uri.file(
             path.join(this.context.extensionPath, 'src', 'js', 'getXMLContent.js')
         ));
         const styleGridViewUri = webview.asWebviewUri(vscode.Uri.file(
             path.join(this.context.extensionPath, 'src', 'css', 'gridView.css')
         ));
+        const docString = document.uri.toString();
 
         const nonce = getNonce();
 
@@ -67,7 +59,7 @@ export class GridViewEditorProvider implements vscode.CustomTextEditorProvider {
             </head>
 
             <body>
-                <div id="/">
+                <div id="/" docString="${docString}">
                     click to expand
                 </div>
 
