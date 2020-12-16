@@ -8,3 +8,46 @@ th, td {
   border: 2px solid rgb(141, 141, 141);
   vertical-align: text-top;
 }
+
+#ctxMenu {
+  display: none;
+  z-index: 100;
+}
+menu {
+  position: absolute;
+  display: block;
+  left: 0px;
+  top: 0px;
+  width: 20px;
+  height: 20px;
+  padding: 0;
+  margin: 0;
+  border: 2px solid rgb(141, 141, 141);
+  font-weight: normal;
+  white-space: nowrap;
+}
+
+menu:hover {
+  background-color: rgb(63, 63, 63);
+  font-weight: bold;
+}
+
+menu:hover>menu {
+  display:block;
+}
+
+menu>menu {
+  display:none;
+  position: relative;
+  top: -20px;
+  left: 100%;
+  width: 55px;
+}
+
+menu[title]:before {
+  content: attr(title);
+}
+
+menu:not([title]):before {
+  content: "\2630";
+}

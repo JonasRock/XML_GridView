@@ -57,17 +57,26 @@ function convertToValueFieldID(nameFieldID)
 }
 
 function loadContent(e)
-{
+{    
+    if(ctxMenuOpen) {
+        hideCtxMenu();
+        return;
+    }
     var name = e.target.id;
+    
     if (name.startsWith("xmlGridViewNameField-")) {
         name = convertToValueFieldID(name);
-
+        
     }
     sendRequest("getChildren", {"xPath": name, "uri": docString}, showElements, document.getElementById(name));
 }
 
 function unloadContent(e)
 {
+    if(ctxMenuOpen) {
+        hideCtxMenu();
+        return;
+    }
     e.target.removeEventListener("click", unloadContent);
     e.target.addEventListener("click", loadContent);
     var name = e.target.id;
@@ -85,33 +94,33 @@ function serverReady(result)
         {
             vscode.postMessage(
                 createMessage("showNotification",             
-                    {"text": "Parsing error at [Line: "
-                    + (parseInt(result.position.line) + 1) + ", Column: " + (parseInt(result.position.character) + 1) +"]:\n" + result.description,
-                    "position": result.position,
-                    "uri": docString}
-                    //1 added to position values because returned values are zero based but start with one in the editor
+                {"text": "Parsing error at [Line: "
+                + (parseInt(result.position.line) + 1) + ", Column: " + (parseInt(result.position.character) + 1) +"]:\n" + result.description,
+                "position": result.position,
+                "uri": docString}
+                //1 added to position values because returned values are zero based but start with one in the editor
                 )
-            );
-        }
-    });
-}
-
-function showElements(result, domElement)
-{
-    domElement.removeEventListener("click", loadContent);
-    nameFieldElement = document.getElementById("xmlGridViewNameField-" + domElement.id);
-    if (nameFieldElement) {
-        nameFieldElement.removeEventListener("click", loadContent);
-        nameFieldElement.addEventListener("click", unloadContent);
+                );
+            }
+        });
     }
+    
+    function showElements(result, domElement)
+    {
+        domElement.removeEventListener("click", loadContent);
+        nameFieldElement = document.getElementById("xmlGridViewNameField-" + domElement.id);
+        if (nameFieldElement) {
+            nameFieldElement.removeEventListener("click", loadContent);
+            nameFieldElement.addEventListener("click", unloadContent);
+        }
         
 
-    target = domElement;
+        target = domElement;
     target.innerHTML = "";
 
     var tbl = document.createElement("table");
     tbl.className = "xmlGrid";
-
+    
     if (result.attributes) {
         for (let attribute of result.attributes) {
             var tr = document.createElement("tr");
@@ -139,6 +148,7 @@ function showElements(result, domElement)
                 }
                 tdName.id = "xmlGridViewNameField-" + element.fullPath;
                 tdName.title = "XPath: " + element.fullPath;
+                tdName.addEventListener("contextmenu", showCtxMenu, false);
                 tdName.addEventListener("click", loadContent);
                 tr.appendChild(tdName);
                 tdValue.appendChild(document.createTextNode("click to expand"));
@@ -165,7 +175,7 @@ function main()
     //For debugging, the breakpoints in the webview developer panel only work when its open,
     //so we need to wait until we can open it and then start manually
     document.getElementById("/").addEventListener("click", loadContent);
-
+    
     window.addEventListener('message', event => {
         const message = event.data;
         console.log("Received: " + JSON.stringify(message));
@@ -173,7 +183,28 @@ function main()
     });
 }
 
+function showCtxMenu(event) {
+    ctxMenuOpen = true;
+    event.preventDefault();
+    event.stopPropagation();
+    var ctxMenu = document.getElementById("ctxMenu");
+    ctxMenu.style.display = "block";
+    ctxMenu.style.left = (event.pageX - 10) + "px";
+    ctxMenu.style.top = (event.pageY - 10) + "px";
+}
+
+function hideCtxMenu() {
+    ctxMenuOpen = false;
+    var ctxMenu = document.getElementById("ctxMenu");
+    ctxMenu.style.display = "";
+    ctxMenu.style.left = "";
+    ctxMenu.style.top = "";
+}
+
+var ctxMenuOpen = false;
 docString = document.getElementById("/").getAttribute("docString");
+document.body.addEventListener("click", hideCtxMenu, false);
+document.body.addEventListener("contextmenu", hideCtxMenu, false);
 vscode = acquireVsCodeApi();
 var cbMapper = new CallbackMapper();
 main();
