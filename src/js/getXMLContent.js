@@ -156,6 +156,9 @@ function serverReady(result)
                 tr.appendChild(tdValue);
             } else {
                 tdName.appendChild(document.createTextNode(element.name));
+                tdName.id = "xmlGridViewNameField-" + element.fullPath;
+                tdName.title = "XPath: " + element.fullPath;
+                tdName.addEventListener("contextmenu", showCtxMenu, false);
                 tr.appendChild(tdName);
                 tdValue.appendChild(document.createTextNode(element.value));
                 tr.appendChild(tdValue);
