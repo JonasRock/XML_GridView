@@ -47,7 +47,8 @@ export class CommunicationHandler {
             let extern: boolean = true;
             switch (message.method) {
                 //Depending on the method, here we can append additional info to the request that the webview has no access to
-            case "getChildren": message.params["options"] = {"arxml": this.config.arxml}; break;
+                case "goto": this.goToElement(message.params); extern = false; break;
+                case "getChildren": message.params["options"] = {"arxml": this.config.arxml}; break;
                 case "showNotification": extern = false; vscode.window.showWarningMessage(message.params.text, "Go to Error", "Ignore")
                     .then(value => {
                         if (value !== "Ignore") {
@@ -74,6 +75,14 @@ export class CommunicationHandler {
 
         //tell the webview that the server is ready
         webviewPanel.webview.postMessage({"id":0, "result": null});
+    }
+
+    private goToElement(params: any) {
+        this.serverAndClient.request("getNodePosition", params).then(result => {
+            editorGoTo(new vscode.Location(vscode.Uri.parse(params.uri),
+                new vscode.Position(result.line, result.character))
+            );
+        });
     }
 }
 

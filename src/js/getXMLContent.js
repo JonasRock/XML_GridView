@@ -66,7 +66,6 @@ function loadContent(e)
     
     if (name.startsWith("xmlGridViewNameField-")) {
         name = convertToValueFieldID(name);
-        
     }
     sendRequest("getChildren", {"xPath": name, "uri": docString}, showElements, document.getElementById(name));
 }
@@ -114,26 +113,26 @@ function serverReady(result)
             nameFieldElement.addEventListener("click", unloadContent);
         }
         
-
+        
         target = domElement;
-    target.innerHTML = "";
-
-    var tbl = document.createElement("table");
-    tbl.className = "xmlGrid";
-    
-    if (result.attributes) {
-        for (let attribute of result.attributes) {
-            var tr = document.createElement("tr");
-            var tdName = document.createElement("td");
-            tdName.appendChild(document.createTextNode("@" + attribute.name));
-            tr.appendChild(tdName);
-            var tdValue = document.createElement("td");
-            tdValue.appendChild(document.createTextNode(attribute.value));
-            tr.appendChild(tdValue);
-            tbl.appendChild(tr);
+        target.innerHTML = "";
+        
+        var tbl = document.createElement("table");
+        tbl.className = "xmlGrid";
+        
+        if (result.attributes) {
+            for (let attribute of result.attributes) {
+                var tr = document.createElement("tr");
+                var tdName = document.createElement("td");
+                tdName.appendChild(document.createTextNode("@" + attribute.name));
+                tr.appendChild(tdName);
+                var tdValue = document.createElement("td");
+                tdValue.appendChild(document.createTextNode(attribute.value));
+                tr.appendChild(tdValue);
+                tbl.appendChild(tr);
+            }
         }
-    }
-    if (result.elements) {
+        if (result.elements) {
         for(let element of result.elements)
         {
             var tr = document.createElement("tr");
@@ -175,6 +174,8 @@ function main()
     //For debugging, the breakpoints in the webview developer panel only work when its open,
     //so we need to wait until we can open it and then start manually
     document.getElementById("/").addEventListener("click", loadContent);
+    document.body.addEventListener("click", hideCtxMenu, false);
+    document.body.addEventListener("contextmenu", hideCtxMenu, false);
     
     window.addEventListener('message', event => {
         const message = event.data;
@@ -191,6 +192,16 @@ function showCtxMenu(event) {
     ctxMenu.style.display = "block";
     ctxMenu.style.left = (event.pageX - 10) + "px";
     ctxMenu.style.top = (event.pageY - 10) + "px";
+    document.getElementById("goto").addEventListener("click", () => {
+        goToTextPosition(event.target.id);
+    });
+}
+
+function goToTextPosition(targetID) {
+    if (targetID.startsWith("xmlGridViewNameField-")) {
+        targetID = convertToValueFieldID(targetID);
+    }
+    vscode.postMessage(createMessage("goto", {"xPath": targetID, "uri": docString}));
 }
 
 function hideCtxMenu() {
@@ -203,8 +214,6 @@ function hideCtxMenu() {
 
 var ctxMenuOpen = false;
 docString = document.getElementById("/").getAttribute("docString");
-document.body.addEventListener("click", hideCtxMenu, false);
-document.body.addEventListener("contextmenu", hideCtxMenu, false);
 vscode = acquireVsCodeApi();
 var cbMapper = new CallbackMapper();
 main();

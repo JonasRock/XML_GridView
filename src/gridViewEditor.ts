@@ -64,7 +64,7 @@ export class GridViewEditorProvider implements vscode.CustomTextEditorProvider {
                 </div>
 
                 <menu id="ctxMenu">
-                    <menu title="Go To"</menu>
+                    <menu id="goto" title="Go To"</menu>
                 </menu>
 
                 <script nonce="${nonce}" src="${scriptGetXMLContentUri}"></script>
