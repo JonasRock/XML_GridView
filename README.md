@@ -1,65 +1,56 @@
-# xml-grid-view README
+# XML Grid View #
 
-This is the README for your extension "xml-grid-view". After writing up a brief description, we recommend including the following sections.
+This extension provides a alternative representation of XML files.
 
-## Features
+## Prerequesites ##
 
-Describe specific features of your extension including screenshots of your extension in action. Image paths are relative to this README file.
+The server used for parsing the xml-file is Windows-x64 only at the moment.
 
-For example if there is an image subfolder under your extension project workspace:
+For bigger files (>50MB) VSCode disables extensions. To get around this, the extension [Large file support for extensions](https://marketplace.visualstudio.com/items?itemName=mbehr1.vsc-lfs) is needed.
 
-\!\[feature X\]\(images/feature-x.png\)
+---------------
 
-> Tip: Many popular extensions utilize animations. This is an excellent way to show off your extension! We recommend short, focused animations that are easy to follow.
+## How to use ##
 
-## Requirements
+When opening the file, choose the XML Grid View as the editor.
+- Right Click the open file and choose **reopen editor with**
+- Right Click the file in the file explorer and choose **open with**
 
-If you have any requirements or dependencies, add a section describing those and how to install and configure them.
+---------------
 
-## Extension Settings
+## Features ##
 
-Include if your extension adds any VS Code settings through the `contributes.configuration` extension point.
+- **Grid View** for XML Files. Expand and collapse elements as needed.
+- **Go to Position in Text Editor**: Right click any element
+- **Performant even for big files**: Content is streamed in as needed, so the editor stays performant
 
-For example:
+---------------
 
-This extension contributes the following settings:
+## Useful Commands and Shortcuts ##
 
-* `myExtension.enable`: enable/disable this extension
-* `myExtension.thing`: set to `blah` to do something
+- **Right-Click** to open a context menu for additional features
 
-## Known Issues
+---------------
 
-Calling out known issues can help limit users opening duplicate issues against your extension.
+## Settings ##
 
-## Release Notes
+- **Autosar Mode** include the SHORT-NAME of elements in its name, providing clearer array representation for .arxml files
 
-Users appreciate release notes as you update your extension.
+---------------
 
-### 1.0.0
+## Common issues ##
 
-Initial release of ...
+### Extension does not work on big files ###
 
-### 1.0.1
+For files bigger than around 50mb, Visual Studio Code disables all extensions automatically.
+The current workaround for this is to use the VSCode extension
+[Large file support for extensions](https://marketplace.visualstudio.com/items?itemName=mbehr1.vsc-lfs).
+Install it and use to command (Ctrl+Shift+P) **open large file...**
 
-Fixed issue #.
+### Editor resets on reopening ###
 
-### 1.1.0
+State saving is currently work in progress
 
-Added features X, Y, and Z.
+### No editing possibilities ###
 
------------------------------------------------------------------------------------------------------------
-
-## Working with Markdown
-
-**Note:** You can author your README using Visual Studio Code.  Here are some useful editor keyboard shortcuts:
-
-* Split the editor (`Cmd+\` on macOS or `Ctrl+\` on Windows and Linux)
-* Toggle preview (`Shift+CMD+V` on macOS or `Shift+Ctrl+V` on Windows and Linux)
-* Press `Ctrl+Space` (Windows, Linux) or `Cmd+Space` (macOS) to see a list of Markdown snippets
-
-### For more information
-
-* [Visual Studio Code's Markdown Support](http://code.visualstudio.com/docs/languages/markdown)
-* [Markdown Syntax Reference](https://help.github.com/articles/markdown-basics/)
-
-**Enjoy!**
+This is currently a readonly extension
