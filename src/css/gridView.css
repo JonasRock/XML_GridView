@@ -51,3 +51,8 @@ menu[title]:before {
 menu:not([title]):before {
   content: "\2630";
 }
+
+.expandable{
+  color: cornflowerblue;
+  font-style: italic;
+}

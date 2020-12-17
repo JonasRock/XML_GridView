@@ -78,12 +78,14 @@ function unloadContent(e)
     }
     e.target.removeEventListener("click", unloadContent);
     e.target.addEventListener("click", loadContent);
+    e.classList = "expandableNameField";
     var name = e.target.id;
     name = convertToValueFieldID(name);
     valueField = document.getElementById(name);
     valueField.innerHTML = "";
     valueField.appendChild(document.createTextNode("click to expand"));
     valueField.addEventListener("click", loadContent);
+    valueField.classList = "expandable";
 }
 
 function serverReady(result)
@@ -107,10 +109,12 @@ function serverReady(result)
     function showElements(result, domElement)
     {
         domElement.removeEventListener("click", loadContent);
+        domElement.classList = "expanded";
         nameFieldElement = document.getElementById("xmlGridViewNameField-" + domElement.id);
         if (nameFieldElement) {
             nameFieldElement.removeEventListener("click", loadContent);
             nameFieldElement.addEventListener("click", unloadContent);
+            nameFieldElement.classList = "expandedNameField";
         }
         
         
@@ -146,12 +150,14 @@ function serverReady(result)
                     tdName.appendChild(document.createTextNode(element.name));
                 }
                 tdName.id = "xmlGridViewNameField-" + element.fullPath;
+                tdValue.classList = "expandableNameField";
                 tdName.title = "XPath: " + element.fullPath;
                 tdName.addEventListener("contextmenu", showCtxMenu, false);
                 tdName.addEventListener("click", loadContent);
                 tr.appendChild(tdName);
                 tdValue.appendChild(document.createTextNode("click to expand"));
                 tdValue.id = element.fullPath;
+                tdValue.classList = "expandable";
                 tdValue.addEventListener("click", loadContent);
                 tr.appendChild(tdValue);
             } else {
