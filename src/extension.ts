@@ -7,15 +7,30 @@ import { CommunicationHandler } from './communicationHandler';
 
 let socket: net.Socket;
 let server: net.Server;
-let commHandler: CommunicationHandler;
 
 export function activate(context: vscode.ExtensionContext)
 {
+	context.subscriptions.push(vscode.commands.registerCommand("xml-grid-view.restartGridView", () => {
+		deactivate();
+		for (const subscription of context.subscriptions) {
+			try {
+				subscription.dispose();
+			} catch (e) {
+				console.error(e);
+			}
+		}
+		activate(context);
+	}));
 	let xmlServerPath: string = path.join(__dirname, "../XML_GridViewServer.exe");
 	createXMLServer(context, xmlServerPath)
 	.then( () => {
 		context.subscriptions.push(GridViewEditorProvider.register(context, socket));
+		vscode.commands.executeCommand("workbench.action.webview.reloadWebviewAction");
 	});
+}
+
+export function deactivate() {
+	socket.end();
 }
 
 function createXMLServer(context: vscode.ExtensionContext, serverPath: string) {

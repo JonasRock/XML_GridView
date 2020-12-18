@@ -29,6 +29,10 @@
 			{
 				"command": "xml-grid-view.openGridView",
 				"title": "Open in Grid View"
+			},
+			{
+				"command": "xml-grid-view.restartGridView",
+				"title": "XML Grid View: Restart XML Server"
 			}
 		],
 		"customEditors": [
