@@ -6,20 +6,19 @@ import { CommunicationHandler } from './communicationHandler';
 
 export class GridViewEditorProvider implements vscode.CustomTextEditorProvider {
 
-    public static register(context: vscode.ExtensionContext, socket: net.Socket): vscode.Disposable {
-        const provider = new GridViewEditorProvider(context, socket);
+    public static register(context: vscode.ExtensionContext, commHandler: CommunicationHandler): vscode.Disposable {
+        const provider = new GridViewEditorProvider(context, commHandler);
         
         const providerRegistration = vscode.window.registerCustomEditorProvider(GridViewEditorProvider.viewType, provider);
         return providerRegistration;
     }
 
     private static readonly viewType = 'xml-grid-view.gridView';
-    private id: number = 0;
-    private commHandler: CommunicationHandler | undefined = undefined;
+    private panel: vscode.WebviewPanel | undefined = undefined;
     
     constructor(
         private readonly context: vscode.ExtensionContext,
-        private socket: net.Socket
+        private commHandler: CommunicationHandler
     ) {}
 
     public async resolveCustomTextEditor(
@@ -27,7 +26,8 @@ export class GridViewEditorProvider implements vscode.CustomTextEditorProvider {
         webviewPanel: vscode.WebviewPanel,
         _token: vscode.CancellationToken
     ) : Promise<void> {
-        this.commHandler = new CommunicationHandler(this.socket, webviewPanel);
+        this.panel = webviewPanel;
+        this.commHandler.addWebview(document.uri.toString(), webviewPanel);
         webviewPanel.webview.options = {
             enableScripts: true
         };

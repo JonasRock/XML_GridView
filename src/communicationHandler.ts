@@ -8,11 +8,13 @@ export class CommunicationHandler {
 
     private serverAndClient: JSONRPCServerAndClient;
     private config: Config;
+    private webviews: Map<string, vscode.WebviewPanel>;
+    private receiveBuffer: MessageBuffer;
 
     constructor(
         private socket: net.Socket,
-        private webviewPanel: vscode.WebviewPanel,
     ) {
+        this.webviews = new Map<string, vscode.WebviewPanel>();
         this.serverAndClient = new JSONRPCServerAndClient(
             new JSONRPCServer,
             new JSONRPCClient(
@@ -31,50 +33,43 @@ export class CommunicationHandler {
         this.config = new Config;
         this.config.getNewConfiguration();
         vscode.workspace.onDidChangeConfiguration(() => this.config.getNewConfiguration());
-
+        
+        this.receiveBuffer = new MessageBuffer("\r\n\r\n");
         //Message from the XML server
-        let received = new MessageBuffer("\r\n\r\n");
-        socket.on("data", (data) => {
-            received.push(data.toString());
-            while (!received.isFinished()) {
-                const message = received.getMessage();
-                this.serverAndClient.receiveAndSend(JSON.parse(message));
-            }
-        });
+        socket.on("data", this.onSocketData.bind(this));
+    }
+    private onSocketData(data: Buffer)
+    {
+        this.receiveBuffer.push(data.toString());
+        while(!this.receiveBuffer.isFinished()) {
+            const message = this.receiveBuffer.getMessage();
+            this.serverAndClient.receiveAndSend(JSON.parse(message));
+        }
+    }
 
-        //Requests from the Webview
-        webviewPanel.webview.onDidReceiveMessage((message) => {
-            let extern: boolean = true;
-            switch (message.method) {
-                //Depending on the method, here we can append additional info to the request that the webview has no access to
-                case "goto": this.goToElement(message.params); extern = false; break;
-                case "getChildren": message.params["options"] = {"arxml": this.config.arxml}; break;
-                case "showNotification": extern = false; vscode.window.showWarningMessage(message.params.text, "Go to Error", "Ignore")
-                    .then(value => {
-                        if (value !== "Ignore") {
-                            editorGoTo(
-                                new vscode.Location(vscode.Uri.parse(message.params.uri),
-                                    new vscode.Position(message.params.position.line, message.params.position.character))
-                            );
-                        }
-                    });
-                break;
-            }
-            if(extern) {
-                this.serverAndClient.request(message.method, message.params)
-                .then((result => {
-                    if (message.id) {
-                        webviewPanel.webview.postMessage({"result": result, "id": message.id });
+    public updateSocket(socket: net.Socket)
+    {
+        this.socket = socket;
+        this.socket.on("data", this.onSocketData.bind(this));
+        this.serverAndClient = new JSONRPCServerAndClient(
+            new JSONRPCServer,
+            new JSONRPCClient(
+                request => {
+                    try {
+                        this.socket.write(JSON.stringify(request) + "\r\n\r\n");
+                        return Promise.resolve();
                     }
-                    else {
-                        console.error("Webview request missing ID parameter");
+                    catch (error) {
+                        return Promise.reject(error);
                     }
-                }));
-            }
-        });
+                }
+            )
+        );
+    }
 
-        //tell the webview that the server is ready
-        webviewPanel.webview.postMessage({"id":0, "result": null});
+    public addWebview(docUri: string, webviewPanel: vscode.WebviewPanel) {
+        this.webviews.set(docUri, webviewPanel);
+        this.init(webviewPanel);
     }
 
     private goToElement(params: any) {
@@ -84,7 +79,49 @@ export class CommunicationHandler {
             );
         });
     }
+
+    private onWebviewMessage(webviewPanel: vscode.WebviewPanel, message: any) {
+        var toXMLServer: boolean = true;
+        switch(message.method) {
+            case "goto": this.goToElement(message.params); toXMLServer = false; break;
+            case "getChildren": message.params["options"] = {"arxml": this.config.arxml}; break;
+            case "showNotification": toXMLServer = false; vscode.window.showWarningMessage(
+                message.params.text, "Go to Error", "Ignore").then(
+                    value => {
+                        if(value !== "Ignore") {
+                            editorGoTo(
+                                new vscode.Location(vscode.Uri.parse(message.params.uri),
+                                new vscode.Position(message.params.position.line, message.params.position.character))
+                            );
+                        }
+                });
+                break;
+        }
+        if (toXMLServer) {
+            this.serverAndClient.request(message.method, message.params)
+            .then((result => {
+                if (message.id) {
+                    webviewPanel.webview.postMessage({"result": result, "id": message.id });
+                }
+                else {
+                    console.error("Webview request missing ID parameter");
+                }
+            }), reason => {
+                console.log(reason);
+            });
+        }
+    }
+
+    private init(webviewPanel: vscode.WebviewPanel) {
+        webviewPanel.webview.onDidReceiveMessage(message => {
+            this.onWebviewMessage(webviewPanel, message);
+        });
+        webviewPanel.webview.postMessage({"id": 0, "result": null});
+    }
 }
+
+
+
 
 function editorGoTo(loc: vscode.Location | vscode.Range, callback?: Function) {
 	if ('uri' in loc) {
