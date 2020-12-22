@@ -12,6 +12,12 @@ var commHandler: CommunicationHandler | undefined;
 export function activate(context: vscode.ExtensionContext)
 {
 	commHandler = undefined;
+	start(context);
+	
+}
+function start(context: vscode.ExtensionContext) {
+	
+	let xmlServerPath: string = path.join(__dirname, "../XML_GridViewServer.exe");
 	context.subscriptions.push(vscode.commands.registerCommand("xml-grid-view.restartGridView", () => {
 		stop();
 		for (const subscription of context.subscriptions) {
@@ -23,12 +29,6 @@ export function activate(context: vscode.ExtensionContext)
 		}
 		start(context);
 	}));
-	start(context);
-	
-}
-function start(context: vscode.ExtensionContext) {
-	
-	let xmlServerPath: string = path.join(__dirname, "../XML_GridViewServer.exe");
 	createXMLServer(context, xmlServerPath)
 	.then( () => {
 		if(!commHandler) {
@@ -67,7 +67,7 @@ function createXMLServer(context: vscode.ExtensionContext, serverPath: string) {
 		server.listen(0, '127.0.0.1', () => {
 			var portNr: Number = ((server.address() as any).port);
 			console.log("Listening on Port " + portNr);
-			//exec = child_process.spawn(serverPath, [portNr.toString()]);
+			exec = child_process.spawn(serverPath, [portNr.toString()]);
 		});
 	});
 }
