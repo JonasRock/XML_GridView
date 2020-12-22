@@ -19,7 +19,7 @@
 				"properties": {
 					"xml-grid-view.autosarMode": {
 						"type": "boolean",
-						"default": false,
+						"default": true,
 						"description": "Enables features helpful for viewing AUTOSAR .arxml files, such as including the elements shortnames in arrays, instead of just a number"
 					}
 				}
