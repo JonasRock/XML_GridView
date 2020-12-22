@@ -41,7 +41,7 @@
 				"displayName": "XML Grid View",
 				"selector": [
 					{
-						"filenamePattern": "*.arxml"
+						"filenamePattern": "*xml"
 					}
 				],
 				"priority": "option"
