@@ -5,6 +5,7 @@ import * as path from 'path';
 import * as child_process from 'child_process';
 import { CommunicationHandler } from './communicationHandler';
 
+let exec: child_process.ChildProcess;
 let socket: net.Socket;
 let server: net.Server;
 var commHandler: CommunicationHandler | undefined;
@@ -44,6 +45,7 @@ function start(context: vscode.ExtensionContext) {
 function stop() {
 	socket.end();
 	server.close();
+	exec.kill();
 }
 
 export function deactivate() {
@@ -51,14 +53,13 @@ export function deactivate() {
 }
 
 function createXMLServer(context: vscode.ExtensionContext, serverPath: string) {
-	let exec: child_process.ChildProcess;
 	return new Promise<child_process.ChildProcess>(resolve => {
 		server = net.createServer(s => {
 			console.log("Connection established");
 			socket = s;
 			socket.setNoDelay(true);
 			socket.setEncoding('utf8');
-			socket.on("end", (hadError: boolean) => {
+			socket.on("close", (hadError: boolean) => {
 				console.log("Connection ended");
 			});
 			server.close();
