@@ -8,8 +8,12 @@ export class GridViewEditorProvider implements vscode.CustomTextEditorProvider {
 
     public static register(context: vscode.ExtensionContext, commHandler: CommunicationHandler): vscode.Disposable {
         const provider = new GridViewEditorProvider(context, commHandler);
-        
-        const providerRegistration = vscode.window.registerCustomEditorProvider(GridViewEditorProvider.viewType, provider);
+        let opts = {
+            webviewOptions: {
+                retainContextWhenHidden: true
+            }
+        };
+        const providerRegistration = vscode.window.registerCustomEditorProvider(GridViewEditorProvider.viewType, provider, opts);
         return providerRegistration;
     }
 
