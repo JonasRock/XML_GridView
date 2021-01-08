@@ -10,7 +10,8 @@ export class GridViewEditorProvider implements vscode.CustomTextEditorProvider {
         const provider = new GridViewEditorProvider(context, commHandler);
         let opts = {
             webviewOptions: {
-                retainContextWhenHidden: true
+                retainContextWhenHidden: true,
+                enableFindWidget: true
             }
         };
         const providerRegistration = vscode.window.registerCustomEditorProvider(GridViewEditorProvider.viewType, provider, opts);
