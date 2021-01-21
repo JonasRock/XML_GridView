@@ -3,8 +3,9 @@
 	"displayName": "XML Grid View",
 	"description": "Alternative visual representation for xml files",
 	"version": "0.0.1",
+	"publisher": "jonasrock",
 	"engines": {
-		"vscode": "^1.49.0"
+		"vscode": "^1.51.0"
 	},
 	"categories": [
 		"Other"
