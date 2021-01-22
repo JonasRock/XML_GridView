@@ -40,8 +40,8 @@ export class GridViewEditorProvider implements vscode.CustomTextEditorProvider {
     }
 
     private getHtmlForWebview(webview: vscode.Webview, document: vscode.TextDocument): string {
-        const scriptGetXMLContentUri = webview.asWebviewUri(vscode.Uri.file(
-            path.join(this.context.extensionPath, 'src', 'js', 'getXMLContent.js')
+        const scriptGridViewContentUri = webview.asWebviewUri(vscode.Uri.file(
+            path.join(this.context.extensionPath, 'src', 'js', 'gridViewContent.js')
         ));
         const styleGridViewUri = webview.asWebviewUri(vscode.Uri.file(
             path.join(this.context.extensionPath, 'src', 'css', 'gridView.css')
@@ -64,7 +64,7 @@ export class GridViewEditorProvider implements vscode.CustomTextEditorProvider {
             </head>
 
             <body>
-                <div id="/" docString="${docString}">
+                <div id="/" class="expandable" docString="${docString}">
                     click to expand
                 </div>
 
@@ -72,7 +72,7 @@ export class GridViewEditorProvider implements vscode.CustomTextEditorProvider {
                     <menu id="goto" title="Go To"</menu>
                 </menu>
 
-                <script nonce="${nonce}" src="${scriptGetXMLContentUri}"></script>
+                <script nonce="${nonce}" src="${scriptGridViewContentUri}"></script>
 
             </body>
             </html>`;
