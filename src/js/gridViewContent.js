@@ -48,14 +48,33 @@ function receiveRequest(event) {
 }
 
 //Webview mouse clicks
+
+///Fix: expand not on cell, but on row(tr), and then get the cell info in the expand function,
+///because the id of the row contains the xpath. Handle DIV special case in another way
+///maybe start as a table with the filename at the front?
+
+
 function clickHandler(event) {
     //TODO debounce
-    //FIXME go to parent element until not found or correct one
-    if (event.target.classList.contains("expandable")) {
-        expand(event.target);
-    } else if (event.target.classList.contains("expanded")) {
-        collapse(event.target);
-    } else if (event.target.classList.contains("ctxMenu")) {
+    let target = event.target;
+    while(!target.classList.contains("expandable")
+        && !target.classList.contains("expanded")
+        && !target.classList.contains("ctxMenu")) {
+            if(target.parentElement !== undefined ) {
+                target = target.parentElement;
+            } else {
+                return;
+            }
+        }
+        if(target.tagName === "DIV") {
+            expand(target);
+            return;
+        }
+    if (target.classList.contains("expandable")) {
+        expand(target, target.cells[1]);
+    } else if (target.classList.contains("expanded")) {
+        collapse(target, target.cells[1]);
+    } else if (target.classList.contains("ctxMenu")) {
         if(!ctxMenuOpen) {
             showCtxMenu(event);
         } else {
@@ -64,11 +83,18 @@ function clickHandler(event) {
     }
 }
 
-function expand(target) {
-    sendRequest("getChildren", { "xPath": target.id, "uri": docString }, (result, target) => {
-        target.classList = "expanded";
-        target.appendChild(createTable(result));
-    }, target);
+function expand(source, targetElement = undefined) {
+    var target;
+    if (targetElement === undefined) {
+        target = source;
+    } else {
+        target = targetElement;
+    }
+    sendRequest("getChildren", { "xPath": source.id, "uri": docString }, (result, params) => {
+        params.source.classList = "expanded";
+        params.target.innerHTML = "";
+        params.target.appendChild(createTable(result));
+    }, {"source": source, "target": target});
 }
 
 function createTable(result) {
@@ -104,7 +130,7 @@ function createTable(result) {
                 //Value may now contain the "ARXML Shortname"
                 //FIXME: Include the Shortname serverside
                 if(element.value) {
-                    tdName.appendChild(document.createTextNode(element.name + " - " - element.value));
+                    tdName.appendChild(document.createTextNode(element.name + " - " + element.value));
                 } else {
                     tdName.appendChild(document.createTextNode(element.name));
                 }
