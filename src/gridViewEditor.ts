@@ -68,8 +68,8 @@ export class GridViewEditorProvider implements vscode.CustomTextEditorProvider {
                     click to expand
                 </div>
 
-                <menu id="ctxMenu">
-                    <menu id="goto" title="Go To"</menu>
+                <menu class="ctxMenu" id="ctxMenu">
+                    <menu id="goto" title="Go To" class="ctxMenu"</menu>
                 </menu>
 
                 <script nonce="${nonce}" src="${scriptGridViewContentUri}"></script>

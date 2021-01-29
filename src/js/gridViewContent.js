@@ -55,7 +55,14 @@ function receiveRequest(event) {
 
 
 function clickHandler(event) {
+    if (ctxMenuOpen)
+    {
+        hideCtxMenu(MediaStreamTrackEvent);
+        return;
+    }
     //TODO debounce
+    event.preventDefault();
+    event.stopPropagation();
     let target = event.target;
     while(!target.classList.contains("expandable")
         && !target.classList.contains("expanded")
@@ -74,12 +81,6 @@ function clickHandler(event) {
         expand(target, target.cells[1]);
     } else if (target.classList.contains("expanded")) {
         collapse(target, target.cells[1]);
-    } else if (target.classList.contains("ctxMenu")) {
-        if(!ctxMenuOpen) {
-            showCtxMenu(event);
-        } else {
-            hideCtxMenu(event);
-        }
     }
 }
 
@@ -146,9 +147,10 @@ function createTable(result) {
     return tbl;
 }
 
-function collapse(target) {
-    target.classList = "expandable";
-    target.innterHTML = "";
+function collapse(source, targetElement) {
+    source.classList = "expandable";
+    targetElement.innerHTML = "";
+    targetElement.appendChild(document.createTextNode("click to expand"));
 }
 
 function main() {
@@ -156,13 +158,11 @@ function main() {
 
     window.addEventListener("message", receiveRequest);
     document.addEventListener("click", clickHandler);
+    document.addEventListener("contextmenu", showCtxMenu, false);
 }
 
-function goToTextPosition(targetID) {
-    if (targetID.startsWith("nameField-")) {
-        targetID.replace("nameField-", "");
-    }
-    vscode.postMessage(createMessage("goto", { "xPath": targetID, "uri": docString }));
+function goToTextPosition(xPath) {
+    vscode.postMessage(createMessage("goto", { "xPath": xPath, "uri": docString }));
 }
 
 function serverReady(result) {
@@ -192,13 +192,30 @@ function showCtxMenu(event) {
     ctxMenu.style.left = (event.pageX - 10) + "px";
     ctxMenu.style.top = (event.pageY - 10) + "px";
     document.getElementById("goto").addEventListener("click", () => {
-        goToTextPosition(event.target.id);
+        goToTextPosition(getXPath(event.target));
     });
+}
+
+function getXPath(target)
+{
+    while(!target.classList.contains("expandable")
+        && !target.classList.contains("expanded"))
+    {
+        if(target.parentElement !== undefined ) {
+            target = target.parentElement;
+        } else {
+            return undefined;
+        }
+    }
+    if(target.tagName = "DIV") {
+        return target.id;
+    } else {
+        return target.cells[1].id;
+    }
 }
 
 function hideCtxMenu(event) {
     ctxMenuOpen = false;
-    event.stopPropagation();
     var ctxMenu = document.getElementById("ctxMenu");
     ctxMenu.style.display = "";
     ctxMenu.style.left = "";
