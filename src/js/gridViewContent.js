@@ -161,8 +161,8 @@ function main() {
     document.addEventListener("contextmenu", showCtxMenu, false);
 }
 
-function goToTextPosition(xPath) {
-    vscode.postMessage(createMessage("goto", { "xPath": xPath, "uri": docString }));
+function goToTextPosition() {
+    vscode.postMessage(createMessage("goto", { "xPath": ctxMenuXPath, "uri": docString }));
 }
 
 function serverReady(result) {
@@ -191,9 +191,8 @@ function showCtxMenu(event) {
     ctxMenu.style.display = "block";
     ctxMenu.style.left = (event.pageX - 10) + "px";
     ctxMenu.style.top = (event.pageY - 10) + "px";
-    document.getElementById("goto").addEventListener("click", () => {
-        goToTextPosition(getXPath(event.target));
-    });
+    ctxMenuXPath = getXPath(event.target);
+    document.getElementById("goto").addEventListener("click", goToTextPosition);
 }
 
 function getXPath(target)
@@ -220,9 +219,11 @@ function hideCtxMenu(event) {
     ctxMenu.style.display = "";
     ctxMenu.style.left = "";
     ctxMenu.style.top = "";
+    document.getElementById("goto").removeEventListener("click", goToTextPosition);
 }
 
 var ctxMenuOpen = false;
+var ctxMenuXPath = "";
 docString = document.getElementById("/").getAttribute("docString");
 vscode = acquireVsCodeApi();
 var cbMapper = new CallbackMapper();
