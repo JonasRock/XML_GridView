@@ -4,6 +4,7 @@ import * as net from 'net';
 import * as path from 'path';
 import * as child_process from 'child_process';
 import { CommunicationHandler } from './communicationHandler';
+import * as os from 'os';
 
 let exec: child_process.ChildProcess;
 let socket: net.Socket;
@@ -18,7 +19,12 @@ export function activate(context: vscode.ExtensionContext)
 }
 function start(context: vscode.ExtensionContext) {
 	
-	let xmlServerPath: string = path.join(__dirname, "../XML_GridViewServer.exe");
+	let xmlServerPath: string;
+	if (os.platform() === "win32") {
+		xmlServerPath = path.join(__dirname, "../XML_GridViewServer_Windows.exe");
+	} else {
+		xmlServerPath = path.join(__dirname, "../XML_GridViewServer_Linux");
+	}
 	context.subscriptions.push(vscode.commands.registerCommand("xml-grid-view.restartGridView", () => {
 		stop();
 		for (const subscription of context.subscriptions) {
