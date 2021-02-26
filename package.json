@@ -2,7 +2,7 @@
 	"name": "xml-grid-view",
 	"displayName": "XML Grid View",
 	"description": "Alternative visual representation for xml files",
-	"version": "0.0.1",
+	"version": "0.2.0",
 	"publisher": "jonasrock",
 	"engines": {
 		"vscode": "^1.51.0"
@@ -10,6 +10,9 @@
 	"categories": [
 		"Other"
 	],
+	"repository": {
+		"url": "https://github.com/JonasRock/XML_GridView"
+	},
 	"activationEvents": [
 		"onCustomEditor:xml-grid-view.gridView"
 	],

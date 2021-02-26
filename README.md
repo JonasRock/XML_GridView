@@ -4,8 +4,6 @@ This extension provides a alternative representation of XML files.
 
 ## Prerequesites ##
 
-The server used for parsing the xml-file is Windows-x64 only at the moment.
-
 For bigger files (>50MB) VSCode disables extensions. To get around this, the extension [Large file support for extensions](https://marketplace.visualstudio.com/items?itemName=mbehr1.vsc-lfs) is needed.
 
 ---------------
@@ -54,3 +52,7 @@ State saving is currently work in progress
 ### No editing possibilities ###
 
 This is currently a readonly extension
+
+## Backend/Developing yourself ##
+
+The extension uses the [XML_GridViewServer](https://github.com/JonasRock/XML_GridViewServer) as a backend. The binaries are bundled with the extension for Linux and Windows, so no need to install manually. To bundle the extension yourself, include the server binary as "XML_GridViewServer_Linux" or "XML_GridViewServer_Windows.exe" depending on your OS. You can also include both binaries.
